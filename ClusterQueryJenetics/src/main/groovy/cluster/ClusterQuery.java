@@ -63,12 +63,8 @@ public class ClusterQuery {
 				.alterers(new Mutator<>(0.2), new SinglePointCrossover<>(0.7)).build();
 
 		final Phenotype<IntegerGene, Double> result = engine.stream().limit(maxGen).peek(ind -> {
-			// System.out.println("Gen: " + ind.getGeneration() + " phen " +
-			// ind.getBestPhenotype());
-			Genotype<IntegerGene> g = ind.getBestPhenotype().getGenotype();
-			
 	
-			//cf2.generationStats(ind.getGeneration());
+			Genotype<IntegerGene> g = ind.getBestPhenotype().getGenotype();		
 			cf(g).generationStats(ind.getGeneration()); 
 			System.out.println();
 		}).collect(toBestPhenotype());

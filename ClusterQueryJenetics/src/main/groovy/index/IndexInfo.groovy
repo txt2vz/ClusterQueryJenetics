@@ -42,10 +42,10 @@ class IndexInfo {
 	static final String pathToIndex =
 	//   'indexes/R10'
 	//     'indexes/NG20'
-		 'indexes/crisis3FireBombFloodL6.6'
+	//	 'indexes/crisis3FireBombFloodL6.6'
 	// 'indexes/classic4_500L6'
 	//	 'indexes/20NG5WindowsmiscForsaleHockeySpaceChristianL6'
-	//'indexes/20NG3SpaceHockeyChristianL6'
+	'indexes/20NG3SpaceHockeyChristianL6'
 	
 	// set the index
 	static {
