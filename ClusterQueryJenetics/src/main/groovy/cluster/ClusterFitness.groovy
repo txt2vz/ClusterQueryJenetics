@@ -42,7 +42,7 @@ public class ClusterFitness{
 	private int graphPenalty=0
 
 	private final int hitsPerPage = IndexInfo.indexReader.maxDoc()
-	private final int coreClusterSize = 40
+	private final int coreClusterSize = 20
 
 	public double getFitness(){
 		return baseFitness;
@@ -115,8 +115,7 @@ public class ClusterFitness{
 			}
 		}
 
-		queryMap = qMap.asImmutable()
-		//	println "in fitness qmap $qMap"
+		queryMap = qMap.asImmutable()		
 
 		scoreOnly = positiveScoreTotal - (negativeScoreTotal * 2)
 		totalHits = allHits.size()
@@ -131,8 +130,8 @@ public class ClusterFitness{
 				//major penalty for query returning nothing or empty query
 				(zeroHitsCount * 100) + coreClusterPenalty + duplicateCount + lowSubqHits + 1;
 
-		baseFitness =  //(scorePlus1000 / negIndicators) * fraction * fraction
-		          scoreOnly;
+		baseFitness =  (scorePlus1000 / negIndicators) * fraction * fraction
+		          //scoreOnly;
 	} 
 
 	@TypeChecked(TypeCheckingMode.SKIP)
@@ -221,13 +220,13 @@ public class ClusterFitness{
 		resultsOut.flush()
 		resultsOut.close()
 
-		boolean appnd =  true//job!=0
+		boolean appnd =  job!=0
 		FileWriter fcsv = new FileWriter("results/resultsCluster.csv", appnd)
 		Formatter csvOut = new Formatter(fcsv);
-		//if (!appnd){
-			//final String fileHead = "gen, job, popSize, fitness, averageF1, averagePrecision, averageRecall, query" + '\n';
-			//	csvOut.format("%s", fileHead)
-		//}
+		if (!appnd){
+			final String fileHead = "gen, job, popSize, fitness, averageF1, averagePrecision, averageRecall, query" + '\n';
+				csvOut.format("%s", fileHead)
+		}
 				csvOut.format(
 						"%s, %s, %s, %.3f, %.3f, %.3f, %.3f, %s",
 						gen,

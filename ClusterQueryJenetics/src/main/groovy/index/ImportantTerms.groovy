@@ -30,7 +30,8 @@ public class ImportantTerms  {
 	private final IndexReader indexReader = indexSearcher.indexReader
 	private Terms terms
 	private TermsEnum termsEnum
-	private Set<String> stopSet= StopSet.smallStopSet   //getStopSetFromFile()
+	private Set<String> stopSet= //StopSet.smallStopSet   
+	                             StopSet.getStopSetFromFile()
 
 	public static void main(String[] args){
 		IndexInfo.instance.categoryNumber = '2'

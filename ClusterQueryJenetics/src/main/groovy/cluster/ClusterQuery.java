@@ -47,13 +47,19 @@ public class ClusterQuery {
 	}
 
 	public static void main(String[] args) throws Exception {
+		IntStream.range(0, 4).forEach(job ->
+				new ClusterQuery(job)
+			);			
+	}	
+	
+	public ClusterQuery(int job) {
 
-		final int popSize = 256;
-		final long maxGen = 100; 
+		final int popSize = 500;
+		final long maxGen = 1000; 
 
 		final Factory<Genotype<IntegerGene>> gtf = Genotype.of(
 
-				new IntegerChromosome(-1, 50, 9));
+				new IntegerChromosome(-1, 80, 15));
 
 		final Engine<IntegerGene, Double> engine = Engine.builder(ClusterQuery::evaluate, gtf).populationSize(popSize)
 				// .survivorsSelector(new
@@ -69,11 +75,11 @@ public class ClusterQuery {
 			System.out.println();
 		}).collect(toBestPhenotype());
 
-		System.out.println("Final result " + result);
+		System.out.println("Final result job " + job + " " + result);
 		Genotype<IntegerGene> g = result.getGenotype();
 		ClusterFitness cfResult = cf(g);
 		System.out.println("cluster fit result " + cfResult.queryShort());
-		cfResult.queryStats(0, result.getGeneration(), popSize);
+		cfResult.queryStats(job, result.getGeneration(), popSize);
 		System.out.println();
 	}
 }
