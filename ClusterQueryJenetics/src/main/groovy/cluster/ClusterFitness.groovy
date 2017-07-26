@@ -25,7 +25,7 @@ public class ClusterFitness{
 	private double fraction = 0.0
 	private double baseFitness = 0.0
 	private double scorePlus1000 = 0.0
-	private double scoreOnly = 0.0
+	private double posScrMinusNegScrTimes2 = 0.0
 
 	private int positiveHits = 0
 	private int negativeHits = 0
@@ -52,18 +52,15 @@ public class ClusterFitness{
 		def s="queryMap.size ${queryMap.size()} \n"
 		queryMap.keySet().eachWithIndex {Query q, int index ->
 			if (index>0) s+='\n';
-			s +=  "ClusterQuery: $index :  ${queryMap.get(q)}  ${q.toString(IndexInfo.FIELD_CONTENTS)}"
+			s +=  "ClusterQuery ${index}: ${queryMap.get(q)}\t${q.toString(IndexInfo.FIELD_CONTENTS)}"
 		}
 		return s
 	}
 
 	public void generationStats(long generation){
 		println "Gereration $generation ${queryShort()}"
-
-		printf "PosHits: %d NegHits: %d PosScr: %.2f NegScr: %.2f ScrOnly: %.2f ScPlus1000: %.2f coreClstPen: %d lowSubqHits(AND): %d fit: %.2f zeoHitsCount: %d  \n",
-				positiveHits, negativeHits, positiveScoreTotal, negativeScoreTotal, scoreOnly, scorePlus1000, coreClusterPenalty, lowSubqHits, baseFitness, zeroHitsCount
-		println "TotalHits: " + totalHits + " Total Docs: " + IndexInfo.indexReader.maxDoc()  +  " fraction: " + fraction +
-				" baseFit: " + baseFitness + " missedDocs: " + missedDocs + " duplicate count " + duplicateCount//+ " log(misseddocs): " +   Math.log(cf.missedDocs)
+		println "PosHits: $positiveHits NegHits: $negativeHits PosScr: ${positiveScoreTotal.round(2)} NegScr: ${negativeScoreTotal.round(2)} PosScr-(NegScr*2): ${posScrMinusNegScrTimes2.round(2)} CoreClstPen: $coreClusterPenalty"
+		println "BaseFitness: ${baseFitness.round(2)} TotalHits: $totalHits TotalDocs: ${IndexInfo.indexReader.maxDoc()} MissedDocs: $missedDocs Fraction: $fraction ZeroHits: $zeroHitsCount"
 	}
 
 	public void setClusterFitness ( List <BooleanQuery.Builder> bqbArray){
@@ -115,24 +112,24 @@ public class ClusterFitness{
 			}
 		}
 
-		queryMap = qMap.asImmutable()		
+		queryMap = qMap.asImmutable()
 
-		scoreOnly = positiveScoreTotal - (negativeScoreTotal * 2)
+		posScrMinusNegScrTimes2 = positiveScoreTotal - (negativeScoreTotal * 2)
 		totalHits = allHits.size()
 		fraction = totalHits / IndexInfo.indexReader.maxDoc()
 		missedDocs = IndexInfo.indexReader.maxDoc()  - allHits.size()
 
 		//fitness must be positive for ECJ - most runs start with large negative score
 		final int minScore = 1000
-		scorePlus1000 = (scoreOnly < -minScore) ? 0 : scoreOnly + minScore
+		scorePlus1000 = (posScrMinusNegScrTimes2 < -minScore) ? 0 : posScrMinusNegScrTimes2 + minScore
 
 		final int negIndicators =
 				//major penalty for query returning nothing or empty query
 				(zeroHitsCount * 100) + coreClusterPenalty + duplicateCount + lowSubqHits + 1;
 
 		baseFitness =  (scorePlus1000 / negIndicators) * fraction * fraction
-		          //scoreOnly;
-	} 
+		//posScrMinusNegScrTimes2;
+	}
 
 	@TypeChecked(TypeCheckingMode.SKIP)
 	public void queryStats (int job, long gen, int popSize){
@@ -225,18 +222,18 @@ public class ClusterFitness{
 		Formatter csvOut = new Formatter(fcsv);
 		if (!appnd){
 			final String fileHead = "gen, job, popSize, fitness, averageF1, averagePrecision, averageRecall, query" + '\n';
-				csvOut.format("%s", fileHead)
+			csvOut.format("%s", fileHead)
 		}
-				csvOut.format(
-						"%s, %s, %s, %.3f, %.3f, %.3f, %.3f, %s",
-						gen,
-						job,
-						popSize,
-						baseFitness,
-						averageF1,
-		     			averagePrecision,
-						averageRecall,
-						queryForCSV(job) );
+		csvOut.format(
+				"%s, %s, %s, %.3f, %.3f, %.3f, %.3f, %s",
+				gen,
+				job,
+				popSize,
+				baseFitness,
+				averageF1,
+				averagePrecision,
+				averageRecall,
+				queryForCSV(job) );
 
 		csvOut.flush();
 		csvOut.close()

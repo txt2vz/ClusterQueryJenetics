@@ -47,19 +47,20 @@ public class ClusterQuery {
 	}
 
 	public static void main(String[] args) throws Exception {
-		IntStream.range(0, 4).forEach(job ->
+		final int numberOfJobs=3;
+		IntStream.range(0, numberOfJobs).forEach(job ->
 				new ClusterQuery(job)
 			);			
 	}	
 	
 	public ClusterQuery(int job) {
 
-		final int popSize = 500;
+		final int popSize = 150;
 		final long maxGen = 1000; 
 
 		final Factory<Genotype<IntegerGene>> gtf = Genotype.of(
 
-				new IntegerChromosome(-1, 80, 15));
+				new IntegerChromosome(-1, 100, 15));
 
 		final Engine<IntegerGene, Double> engine = Engine.builder(ClusterQuery::evaluate, gtf).populationSize(popSize)
 				// .survivorsSelector(new
